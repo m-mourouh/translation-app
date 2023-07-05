@@ -4,7 +4,7 @@ import { Providers } from "@/redux/provider";
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'Translation APP',
+  title: 'Translation',
   description: 'Translation APP created with nextJS 13 By Mohamed Mourouh',
   
 }

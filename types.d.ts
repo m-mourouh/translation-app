@@ -22,6 +22,7 @@ type BoxType = {
   // value: string;
   option: "src" | "target";
   code: string
+  isLoading?: boolean
 };
 
 type FlagType = {

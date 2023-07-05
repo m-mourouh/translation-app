@@ -3,6 +3,7 @@ import {
   SpeakerWaveIcon,
   ClipboardIcon,
   XMarkIcon,
+  ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { setSrcText, setTargetText } from "@/redux/features/translation";
@@ -11,7 +12,7 @@ import { useEffect, useState } from "react";
 import { showNotification } from "@/redux/features/notification";
 import copy from "copy-to-clipboard";
 
-export default function Box({ option }: BoxType) {
+export default function Box({ option, isLoading }: BoxType) {
   const srcText = useAppSelector((state) => state.lang.source.text);
   const targetText = useAppSelector((state) => state.lang.target.text);
   const srcLang = useAppSelector((state) => state.lang.source.lang);
@@ -47,6 +48,7 @@ export default function Box({ option }: BoxType) {
       setIsFilled(false);
     }
   }, [targetLang, option, targetText, srcLang, srcText]);
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const boxValue = e.target.value;
     if (option === "src") {
@@ -95,7 +97,7 @@ export default function Box({ option }: BoxType) {
   return (
     <div
       className={
-        "pb-8  w-full relative rounded-md  md:border-0 shadow-sm  focus:border-indigo-400 overflow-hidden focus:ring-2 focus:ring-inset focus:ring-indigo-400  animate-fade " +
+        "pb-8  w-full relative z-0 rounded-md  md:border-0 shadow-sm  focus:border-indigo-400 overflow-hidden focus:ring-2 focus:ring-inset focus:ring-indigo-400  animate-fade " +
         (option === "target"
           ? "bg-[#f5f5f5] "
           : "ring-1 ring-inset ring-gray-300 bg-white")
@@ -104,6 +106,7 @@ export default function Box({ option }: BoxType) {
       <textarea
         name={option === "target" ? "target text" : "translation text"}
         rows={1}
+        id={option === "src" ? "srcText" : ""}
         className={`pr-8 no-scrollbar min-h-[150px] w-full  py-3  text-gray-900 border-none  bg-transparent placeholder:text-gray-400  sm:text-sm sm:leading-6 outline-none resize-none px-3 ${textDirection} `}
         placeholder={option === "src" ? "Enter text" : "Translation"}
         value={option === "src" ? srcText : targetText}
@@ -111,7 +114,8 @@ export default function Box({ option }: BoxType) {
         disabled={option === "target" && true}
         readOnly={option === "target" && true}
       />
-      <div
+      <label
+        htmlFor="srcText"
         className={`flex gap-3 absolute bottom-0 pb-2 text-slate-600  ${
           option === "src" ? "right-4 md:left-4" : "right-4"
         }`}
@@ -134,13 +138,23 @@ export default function Box({ option }: BoxType) {
         >
           <ClipboardIcon className="h-5 w-5" />
         </span>
-      </div>
+      </label>
       {option === "src" && isFilled ? (
         <span
-          className="absolute top-1 right-1 z-50 rounded-full rounded-tr-md  cursor-pointer p-1  text-slate-600 hover:text-indigo-500  transition ease-in-out animate-fade "
+          className="absolute top-1 right-1  rounded-full rounded-tr-md  cursor-pointer p-1  text-slate-600 hover:text-indigo-500  transition ease-in-out animate-fade "
           onClick={removeText}
         >
           <XMarkIcon className="h-4 w-4" />
+        </span>
+      ) : (
+        ""
+      )}
+      {option === "target" && isLoading  ? (
+        <span
+          className="absolute bottom-2 left-2  rounded-full rounded-tr-md  cursor-pointer p-1  text-slate-400   transition ease-in-out animate-spin "
+          onClick={removeText}
+        >
+          <ArrowPathIcon className="h-4 w-4" />
         </span>
       ) : (
         ""
