@@ -11,6 +11,7 @@ import { readText } from "@/lib/helpers";
 import { useEffect, useState } from "react";
 import { showNotification } from "@/redux/features/notification";
 import copy from "copy-to-clipboard";
+import { showModal } from "@/redux/features/dialog";
 
 export default function Box({ option, isLoading }: BoxType) {
   const srcText = useAppSelector((state) => state.lang.source.text);
@@ -21,13 +22,19 @@ export default function Box({ option, isLoading }: BoxType) {
   const [textDirection, setTextDirection] = useState("");
   const [disabledClass, setDisabledClass] = useState("disabled");
   const [isFilled, setIsFilled] = useState(true);
-
+  const [maxLength, setMaxLength] = useState(0)
   useEffect(() => {
     if (
-      (targetLang === "ar-SA" &&
-        targetText.length > 0 &&
+      ((targetLang === "ar" ||
+        targetLang === "ps" ||
+        targetLang === "fa" ||
+        targetLang === "sd" ||
+        targetLang === "ur" ||
+        targetLang === "ug"
+        ) &&
+        targetText?.length > 0 &&
         option === "target") ||
-      (srcLang === "ar-SA" && srcText.length > 0 && option === "src")
+      (srcLang === "ar" && srcText?.length > 0 && option === "src")
     ) {
       setTextDirection("rtl-dir");
     } else {
@@ -35,14 +42,14 @@ export default function Box({ option, isLoading }: BoxType) {
     }
 
     if (
-      (option === "src" && srcText.length > 0) ||
-      (option === "target" && targetText.length > 0)
+      (option === "src" && srcText?.length > 0) ||
+      (option === "target" && targetText?.length > 0)
     ) {
       setDisabledClass("");
     } else {
       setDisabledClass("disabled");
     }
-    if (option === "src" && srcText.length > 0) {
+    if (option === "src" && srcText?.length > 0) {
       setIsFilled(true);
     } else {
       setIsFilled(false);
@@ -51,6 +58,15 @@ export default function Box({ option, isLoading }: BoxType) {
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const boxValue = e.target.value;
+    setMaxLength(e.target.value.length)
+    if(maxLength > 1500) {
+         dispatch(
+           showModal({
+             title: "Message",
+             message: "1500 characters limit",
+           })
+         );
+    }
     if (option === "src") {
       dispatch(setSrcText(boxValue));
       if (boxValue.trim().length === 0) {
@@ -60,7 +76,7 @@ export default function Box({ option, isLoading }: BoxType) {
     } else if (option === "target") {
       dispatch(setTargetText(boxValue));
     }
-    if (srcLang === "ar-SA" && boxValue.length > 0 && option === "src") {
+    if (srcLang === "ar" && boxValue.length > 0 && option === "src") {
       setTextDirection("rtl-dir");
     } else {
       setTextDirection("");
@@ -107,37 +123,45 @@ export default function Box({ option, isLoading }: BoxType) {
         name={option === "target" ? "target text" : "translation text"}
         rows={1}
         id={option === "src" ? "srcText" : ""}
-        className={`pr-8 no-scrollbar min-h-[150px] w-full  py-3  text-gray-900 border-none  bg-transparent placeholder:text-gray-400  sm:text-sm sm:leading-6 outline-none resize-none px-3 ${textDirection} `}
+        className={`pr-8 no-scrollbar min-h-[150px] w-full  py-3  text-gray-900  border-none  bg-transparent placeholder:text-gray-400  sm:text-sm sm:leading-6 outline-none resize-none px-3 ${textDirection} `}
         placeholder={option === "src" ? "Enter text" : "Translation"}
         value={option === "src" ? srcText : targetText}
         onChange={(e) => handleChange(e)}
         disabled={option === "target" && true}
         readOnly={option === "target" && true}
+        maxLength={1500}
       />
       <label
-        htmlFor="srcText"
-        className={`flex gap-3 absolute bottom-0 pb-2 text-slate-600  ${
+        htmlFor={option === "src" ? "srcText" : ""}
+        className={`flex items-center gap-4 justify-between absolute bottom-0 pb-2 text-slate-600  ${
           option === "src" ? "right-4 md:left-4" : "right-4"
         }`}
       >
-        <span
-          className={
-            "cursor-pointer hover:text-indigo-400 transition duration-150 ease-in " +
-            disabledClass
-          }
-          onClick={() => speak(option)}
-        >
-          <SpeakerWaveIcon className="h-5 w-5" />
-        </span>
-        <span
-          className={
-            "cursor-pointer hover:text-indigo-400 transition duration-150 ease-in " +
-            disabledClass
-          }
-          onClick={copyText}
-        >
-          <ClipboardIcon className="h-5 w-5" />
-        </span>
+        <div className="flex gap-3 ">
+          <span
+            className={
+              "cursor-pointer hover:text-indigo-400 transition duration-150 ease-in " +
+              disabledClass
+            }
+            onClick={() => speak(option)}
+          >
+            <SpeakerWaveIcon className="h-5 w-5" />
+          </span>
+          <span
+            className={
+              "cursor-pointer hover:text-indigo-400 transition duration-150 ease-in " +
+              disabledClass
+            }
+            onClick={copyText}
+          >
+            <ClipboardIcon className="h-5 w-5" />
+          </span>
+        </div>
+        {option === "src" ? (
+          <div className="text-xs">{`${maxLength}/1500`}</div>
+        ) : (
+          ""
+        )}
       </label>
       {option === "src" && isFilled ? (
         <span
@@ -149,7 +173,7 @@ export default function Box({ option, isLoading }: BoxType) {
       ) : (
         ""
       )}
-      {option === "target" && isLoading  ? (
+      {option === "target" && isLoading ? (
         <span
           className="absolute bottom-2 left-2  rounded-full rounded-tr-md  cursor-pointer p-1  text-slate-400   transition ease-in-out animate-spin "
           onClick={removeText}

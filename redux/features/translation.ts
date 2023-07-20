@@ -3,11 +3,11 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: LangOptions = {
   source: {
-    lang: "fr-FR",
+    lang: "en",
     text: "",
   },
   target: {
-    lang: "en-GB",
+    lang: "es",
     text: "",
   },
 };

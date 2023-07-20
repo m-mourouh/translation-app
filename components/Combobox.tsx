@@ -28,7 +28,6 @@ export default function LangsBox({ option }: LangBoxType) {
     } else if (option === "target") {
       setSelected(flags.find((f) => f.code === targetLang));
     }
-    console.log("first useEffect");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [srcLang, targetLang]);
 
@@ -47,15 +46,15 @@ export default function LangsBox({ option }: LangBoxType) {
           };
           const res = await translate(userData);
           try {
-            dispatch(setTargetText(res["data"]["matches"][0]["translation"]));
+            if (res && "data" in res) {
+               dispatch(setTargetText(res["data"]["outputText"]));
+            }
           } catch (error) {
             dispatch(setTargetText(""));
             console.log(error);
           }
         })()
     }
-    
-    console.log("second useEffect");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
 

@@ -11,7 +11,7 @@ import LangsBox from "./Combobox";
 import Notification from "./Notification";
 import { useState } from "react";
 import Image from "next/image";
-import Logo from "@/public/images/logo2.svg";
+import Logo2 from "@/public/images/logo2.svg";
 
 export default function Main() {
   const srcLang = useAppSelector((state) => state.lang.source.lang);
@@ -22,7 +22,7 @@ export default function Main() {
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false)
   const handleClick = async () => {
-    if (srcText.trim().length > 0) {
+    if (srcText.length > 0) {
       setIsLoading(true)
       dispatch(setTargetText("Loading..."));
       const userData = {
@@ -32,7 +32,7 @@ export default function Main() {
       };
       const res = await translate(userData);
       try {
-        dispatch(setTargetText(res["data"]["matches"][0]["translation"]));
+        dispatch(setTargetText(res["data"]["outputText"]));
          setIsLoading(false);
       } catch (error) {
         dispatch(setTargetText(""));
@@ -67,7 +67,7 @@ export default function Main() {
             onClick={handleClick}
           >
             <Image
-              src={Logo}
+              src={Logo2}
               width={15}
               height={15}
               alt="T"
