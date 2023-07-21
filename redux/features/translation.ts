@@ -29,9 +29,12 @@ const translationReducer = createSlice({
       state.target.lang = action.payload;
     },
     toggleLangs: (state: LangOptions) => {
-      const target = state.target
-      state.target = state.source;
-      state.source = target;
+      const targetLang = state.target.lang;
+      state.target.text = "";
+      state.source.text = "";
+
+      state.target.lang = state.source.lang;
+      state.source.lang = targetLang;
     }
   },
 });
